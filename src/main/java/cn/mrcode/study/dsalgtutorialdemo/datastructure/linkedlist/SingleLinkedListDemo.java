@@ -1,9 +1,15 @@
 package cn.mrcode.study.dsalgtutorialdemo.datastructure.linkedlist;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Stack;
+
 /**
  * 单向链表测试
  */
 public class SingleLinkedListDemo {
+
     public static void main(String[] args) {
         HeroNode hero1 = new HeroNode(1, "宋江", "及时雨");
         HeroNode hero2 = new HeroNode(2, "卢俊义", "玉麒麟");
@@ -38,6 +44,76 @@ public class SingleLinkedListDemo {
         singleLinkedList.delete(4);
         System.out.println("删除后");
         singleLinkedList.list();
+    }
+
+    private SingleLinkedList singleLinkedList;
+
+    @Before
+    public void before() {
+        HeroNode hero1 = new HeroNode(1, "宋江", "及时雨");
+        HeroNode hero2 = new HeroNode(2, "卢俊义", "玉麒麟");
+        HeroNode hero3 = new HeroNode(3, "吴用", "智多星");
+        HeroNode hero4 = new HeroNode(4, "林冲", "豹子头");
+
+        // 测试新增
+        singleLinkedList = new SingleLinkedList();
+        singleLinkedList.add(hero1);
+        singleLinkedList.add(hero4);
+        singleLinkedList.add(hero2);
+        singleLinkedList.add(hero3);
+    }
+
+
+    /**
+     * 长度测试
+     */
+    @Test
+    public void lengthTest() {
+        System.out.println(singleLinkedList.length());
+        singleLinkedList.delete(1);
+        System.out.println(singleLinkedList.length());
+    }
+
+    /**
+     * 查找单链表中的倒数第 k 个结点
+     */
+    @Test
+    public void findLastIndexNodeTest() {
+        singleLinkedList.list();
+        System.out.println("查找测试");
+        HeroNode lastIndexNode = singleLinkedList.findLastIndexNode(1);
+        System.out.println("查找倒数第 1 个 " + lastIndexNode);
+        lastIndexNode = singleLinkedList.findLastIndexNode(4);
+        System.out.println("查找倒数第 4 个 " + lastIndexNode);
+        lastIndexNode = singleLinkedList.findLastIndexNode(2);
+        System.out.println("查找倒数第 2 个 " + lastIndexNode);
+        lastIndexNode = singleLinkedList.findLastIndexNode(5);
+        System.out.println("查找倒数第 5 个 " + lastIndexNode);
+    }
+
+    /**
+     * 翻转链表
+     */
+    @Test
+    public void reverseTest() {
+        System.out.println("翻转前");
+        singleLinkedList.list();
+
+        singleLinkedList.reverse();
+
+        System.out.println("翻转后");
+        singleLinkedList.list();
+    }
+
+    /**
+     * 逆序打印链表
+     */
+    @Test
+    public void reversePrintTest(){
+        System.out.println("链表数据");
+        singleLinkedList.list();
+        System.out.println("逆序打印");
+        singleLinkedList.reversePrint();
     }
 }
 
@@ -199,6 +275,112 @@ class SingleLinkedList {
             temp = temp.next;
         }
     }
+
+    /**
+     * <pre>
+     * 获取链表长度. 思路：直接循环统计
+     * </pre>
+     *
+     * @return
+     */
+    public int length() {
+        if (head.next == null) {
+            return 0;
+        }
+        HeroNode temp = head.next;
+        int num = 0;
+        while (temp != null) {
+            num++;
+            temp = temp.next;
+        }
+        return num;
+    }
+
+    /**
+     * <pre>
+     *  查找单链表中的倒数第 k 个结点
+     *
+     *  思路：
+     *   1. 获得该链表节点的个数 size
+     *   2. 从第一个节点循环开始，到 size-index 结束
+     * <pre/>
+     * @param index 倒数第几个节点
+     * @return
+     */
+    public HeroNode findLastIndexNode(int index) {
+        int size = length();
+        if (size == 0) {
+            return null;  // 空链表
+        }
+
+        // 校验 index
+        if (index <= 0 || index > size) {
+            return null;
+        }
+
+        // 循环查找
+        HeroNode cur = head.next;
+        for (int i = 0; i < size - index; i++) {
+            cur = cur.next;
+        }
+        return cur;
+    }
+
+    /**
+     * <pre>
+     *  翻转链表。思路如下
+     *   1. 定义一个新的 reverseHead 节点
+     *   2. 从原链表中依次取出节点，并 始终添加到 reverseHead 的第一个节点
+     *   3. 将原 head 节点的 next 指向 reverseHead.next
+     * </pre>
+     */
+    public void reverse() {
+        if (head.next == null) {
+            return;
+        }
+
+        HeroNode cur = head.next; // 保存从原链表中取出来的节点
+        HeroNode next = null;
+        HeroNode reverseHead = new HeroNode(0, "", "");
+        while (cur != null) {
+            next = cur.next;
+            // 取出来的话，就要清空下一个节点: cur.next = null;
+            // 但是这里由于要添加到 reverseHead 的 下一个节点（永远添加到最前面）
+            //      那么，就需要一个将已有的 reverseHead 后面的链表添加到这个节点的 next，达到在最前面插入的效果
+            cur.next = reverseHead.next;
+            reverseHead.next = cur;
+
+            // cur 后移，完成原节点的遍历
+            cur = next;
+        }
+        // 将翻转后的链表挂到现有的 head.next 上
+        head.next = reverseHead.next;
+    }
+
+    /**
+     * <pre>
+     * 逆序打印链表：使用栈先进后出的特点达到
+     * </pre>
+     */
+    public void reversePrint() {
+        if (head.next == null) {
+            System.out.println("链表为空");
+            return;
+        }
+
+        Stack<HeroNode> stack = new Stack<>();
+        HeroNode cur = head.next;
+        // 遍历原链表，入栈
+        while (cur != null) {
+            stack.push(cur);
+            cur = cur.next;
+        }
+        // 打印栈
+        while (!stack.empty()) {
+            System.out.println(stack.pop());
+        }
+    }
+
 }
 
 /**
