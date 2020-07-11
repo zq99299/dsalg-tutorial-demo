@@ -5,44 +5,38 @@ package cn.mrcode.study.dsalgtutorialdemo.datastructure.linkedlist;
  */
 public class SingleLinkedListDemo {
     public static void main(String[] args) {
-//        test1();
-        test2();
-    }
-
-    /**
-     * 不考虑顺序的添加
-     */
-    public static void test1() {
         HeroNode hero1 = new HeroNode(1, "宋江", "及时雨");
         HeroNode hero2 = new HeroNode(2, "卢俊义", "玉麒麟");
         HeroNode hero3 = new HeroNode(3, "吴用", "智多星");
         HeroNode hero4 = new HeroNode(4, "林冲", "豹子头");
 
+        // 测试新增
         SingleLinkedList singleLinkedList = new SingleLinkedList();
-        singleLinkedList.add(hero1);
-        singleLinkedList.add(hero4);
-        singleLinkedList.add(hero2);
-        singleLinkedList.add(hero3);
+//        singleLinkedList.add(hero1);
+//        singleLinkedList.add(hero4);
+//        singleLinkedList.add(hero2);
+//        singleLinkedList.add(hero3);
 
-        singleLinkedList.list();
-    }
-
-    /**
-     * 考虑顺序的添加
-     */
-    public static void test2() {
-        HeroNode hero1 = new HeroNode(1, "宋江", "及时雨");
-        HeroNode hero2 = new HeroNode(2, "卢俊义", "玉麒麟");
-        HeroNode hero3 = new HeroNode(3, "吴用", "智多星");
-        HeroNode hero4 = new HeroNode(4, "林冲", "豹子头");
-
-        SingleLinkedList singleLinkedList = new SingleLinkedList();
+        // 测试有顺序的新增
         singleLinkedList.addByOrder(hero1);
-        singleLinkedList.addByOrder(hero4);
+//        singleLinkedList.addByOrder(hero4);
         singleLinkedList.addByOrder(hero4);
         singleLinkedList.addByOrder(hero2);
         singleLinkedList.addByOrder(hero3);
 
+        // 测试修改
+//        System.out.println("修改前");
+//        singleLinkedList.list();
+//        HeroNode hero4New = new HeroNode(4, "林冲-修改测试", "豹子头-修改测试");
+//        singleLinkedList.update(hero4New);
+
+//        System.out.println("修改后");
+
+        System.out.println("删除前");
+        singleLinkedList.list();
+        singleLinkedList.delete(1);
+        singleLinkedList.delete(4);
+        System.out.println("删除后");
         singleLinkedList.list();
     }
 }
@@ -117,6 +111,74 @@ class SingleLinkedList {
         // temp  ->  node  -> temp.next
         node.next = temp.next;
         temp.next = node;
+    }
+
+    /**
+     * 根据 no 属性找到匹配的节点，进行修改，但是不修改 next 节点。
+     *
+     * @param newNode
+     */
+    public void update(HeroNode newNode) {
+        if (head.next == null) {
+            System.out.println("链表为空");
+            return;
+        }
+
+        HeroNode temp = head.next;
+        boolean exist = false;  // 是否找到要修改的节点
+        while (true) {
+            // 如果是链表尾部
+            if (temp == null) {
+                break;
+            }
+            // 如果已找到
+            if (temp.no == newNode.no) {
+                exist = true;
+                break;
+            }
+            temp = temp.next;
+        }
+        // 如果已找到，则修改信息
+        if (exist) {
+            temp.name = newNode.name;
+            temp.nickName = newNode.nickName;
+        } else {
+            System.out.printf("未找到编号为 %d 的英雄", newNode.no);
+        }
+    }
+
+    /**
+     * <pre>
+     *   按编号删除节点
+     *   1. 找到要删除的前一个节点
+     *   2. 然后将这个前一个节点的 next 指向变更到要删除节点的 next 节点
+     * </pre>
+     *
+     * @param no
+     */
+    public void delete(int no) {
+        if (head.next == null) {
+            System.out.println("链表为空");
+            return;
+        }
+        HeroNode temp = head;
+        boolean exist = false;  // 是否找到要删除的节点
+        while (true) {
+            if (temp.next == null) {
+                break;
+            }
+            if (temp.next.no == no) {
+                exist = true;
+                break;
+            }
+            temp = temp.next;
+        }
+        if (!exist) {
+            System.out.printf("未找到匹配的编号 %d \n", no);
+            return;
+        }
+        // 删除操作
+        temp.next = temp.next.next;
     }
 
     /**
