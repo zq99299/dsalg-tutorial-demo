@@ -6,6 +6,12 @@ group 'cn.mrcode.study'
 version '1.0'
 
 repositories {
+    mavenLocal()
+    maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+    maven { url 'https://repo.spring.io/libs-snapshot' }
+    maven { url "https://maven.repository.redhat.com/ga/" }
+    maven { url "http://maven.nuiton.org/nexus/content/groups/releases/" }
+    maven { url "https://repository.cloudera.com/artifactory/cloudera-repos/" }
     mavenCentral()
 }
 
