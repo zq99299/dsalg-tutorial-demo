@@ -35,7 +35,7 @@ public class ReversePolishCalculator {
      * @param postfixElements
      * @return
      */
-    private int start(List<String> postfixElements) {
+    public int start(List<String> postfixElements) {
         /*
         比如：`(3+4)x5-6` 对应的后缀表达式 `3 4 + 5 x 6 -`
         1. 从左到右扫描，将 3、4 压入堆栈

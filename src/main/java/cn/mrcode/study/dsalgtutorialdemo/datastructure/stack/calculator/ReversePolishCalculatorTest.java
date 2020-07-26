@@ -2,6 +2,7 @@ package cn.mrcode.study.dsalgtutorialdemo.datastructure.stack.calculator;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
@@ -38,6 +39,17 @@ public class ReversePolishCalculatorTest {
      */
     @Test
     public void test2() {
+        InfixToSuffix infixToSuffix = new InfixToSuffix();
+        // 目标：1+((2+3)*4)-5  转为 1 2 3 + 4 * + 5 -
+        // 1. 将中缀表达式转成 List，方便在后续操作中获取数据
+        String infixExpression = "1+((2+3)*4)-5";
+        List<String> infixList = infixToSuffix.infix2List(infixExpression);
+        // 2. 将中缀表达式转成后缀表达式
+        ArrayList<String> suffixList = infixToSuffix.infixList2SuffixList(infixList);
+        System.out.println(suffixList); // [1, 2, 3, +, 4, *, +, 5, -]
 
+        ReversePolishCalculator calculator = new ReversePolishCalculator();
+        int res = calculator.start(suffixList);
+        System.out.println(infixExpression + " = " + res);
     }
 }
