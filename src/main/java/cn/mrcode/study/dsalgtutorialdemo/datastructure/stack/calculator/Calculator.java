@@ -40,7 +40,8 @@ public class Calculator {
                     continue;
                 }
                 // 当 当前操作符 的优先级 大于 栈顶符号：将 当前操作符入符号栈
-                if (priority(ch) >= priority((char) operStack.peek())) {
+                // 一定要大于，如果是同级的话，有可能前面一个也是 * 号，需要先在第一步进行计算
+                if (priority(ch) > priority((char) operStack.peek())) {
                     operStack.push(ch);
                     continue;
                 }
