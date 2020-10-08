@@ -59,7 +59,7 @@ public class BinarySearchTest {
 
     @Test
     public void binary2Test() {
-        int[] arr = new int[]{1, 8, 10, 89, 1000, 1000, 1234};
+        int[] arr = new int[]{1, 8, 10, 89, 1000, 1000, 1234, 1234};
         int findVal = 89;
         List<Integer> result = binary2(arr, 0, arr.length - 1, findVal);
         System.out.println("查找值 " + findVal + "：" + (result == null ? "未找到" : "找到值，索引为：" + result));
@@ -77,6 +77,10 @@ public class BinarySearchTest {
         System.out.println("查找值 " + findVal + "：" + (result == null ? "未找到" : "找到值，索引为：" + result));
 
         findVal = 1000;
+        result = binary2(arr, 0, arr.length - 1, findVal);
+        System.out.println("查找值 " + findVal + "：" + (result == null ? "未找到" : "找到值，索引为：" + result));
+
+        findVal = 1234;
         result = binary2(arr, 0, arr.length - 1, findVal);
         System.out.println("查找值 " + findVal + "：" + (result == null ? "未找到" : "找到值，索引为：" + result));
     }
