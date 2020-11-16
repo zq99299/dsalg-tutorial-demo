@@ -141,4 +141,29 @@ public class BinaryTreeTest {
         binaryTree.postOrder();
     }
 
+    /**
+     * 考题：给卢俊新增一个 left 节点，然后打印前、中、后 遍历顺序
+     */
+    @Test
+    public void fun2() {
+        // 创建节点与构建二叉树
+        HeroNode n1 = new HeroNode(1, "宋江");
+        HeroNode n2 = new HeroNode(2, "无用");
+        HeroNode n3 = new HeroNode(3, "卢俊");
+        HeroNode n4 = new HeroNode(4, "林冲");
+        HeroNode n5 = new HeroNode(5, "关胜");
+        n1.left = n2;
+        n1.right = n3;
+        n3.right = n4;
+        n3.left = n5;
+        BinaryTree binaryTree = new BinaryTree();
+        binaryTree.root = n1;
+
+        System.out.println("\n 前序遍历：");
+        binaryTree.preOrder();
+        System.out.println("\n 中序遍历：");
+        binaryTree.infixOrder();
+        System.out.println("\n 后序遍历：");
+        binaryTree.postOrder();
+    }
 }
