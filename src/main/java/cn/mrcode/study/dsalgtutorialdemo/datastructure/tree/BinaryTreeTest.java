@@ -156,6 +156,41 @@ public class BinaryTreeTest {
             }
             return null;
         }
+
+        /**
+         * 删除节点
+         *
+         * @param id
+         * @return
+         */
+        public HeroNode delete(int id) {
+            // 判断左子节点是否是要删除的节点
+            HeroNode target = null;
+            if (this.left != null) {
+                if (this.left.id == id) {
+                    target = this.left;
+                    this.left = null;
+                } else {
+                    // 使用子节点的删除方法,进行左递归删除
+                    target = this.left.delete(id);
+                }
+            }
+
+            // 在左找到目标节点，并且删除了，则返回被删除的节点
+            if (target != null) {
+                return target;
+            }
+
+            if (this.right != null) {
+                if (this.right.id == id) {
+                    target = this.right;
+                    this.right = null;
+                } else {
+                    target = this.right.delete(id);
+                }
+            }
+            return target;
+        }
     }
 
     // 编写二叉树对象
@@ -226,6 +261,29 @@ public class BinaryTreeTest {
                 return null;
             }
             return root.postOrderSearch(id);
+        }
+
+        /**
+         * 删除节点
+         *
+         * @param id
+         * @return
+         */
+        public HeroNode delete(int id) {
+            if (root == null) {
+                System.out.println("树为空");
+                return null;
+            }
+            HeroNode target = null;
+            // 树只有 root 节点，则直接置空
+            if (root.id == id) {
+                target = root;
+                root = null;
+            } else {
+                target = this.root.delete(id);
+            }
+
+            return target;
         }
     }
 
@@ -316,5 +374,84 @@ public class BinaryTreeTest {
         System.out.println(binaryTree.infixOrderSearch(id));
         System.out.println("\n后序遍历查找 id=" + id);
         System.out.println(binaryTree.postOrderSearch(id));
+    }
+
+    /**
+     * 构建当前这个树
+     *
+     * @return
+     */
+    private BinaryTree buildBinaryTree() {
+        HeroNode n1 = new HeroNode(1, "宋江");
+        HeroNode n2 = new HeroNode(2, "无用");
+        HeroNode n3 = new HeroNode(3, "卢俊");
+        HeroNode n4 = new HeroNode(4, "林冲");
+        HeroNode n5 = new HeroNode(5, "关胜");
+        n1.left = n2;
+        n1.right = n3;
+        n3.right = n4;
+        n3.left = n5;
+        BinaryTree binaryTree = new BinaryTree();
+        binaryTree.root = n1;
+        return binaryTree;
+    }
+
+    @Test
+    public void delete3() {
+        // 创建节点与构建二叉树
+        BinaryTree binaryTree = buildBinaryTree();
+        binaryTree.preOrder();
+
+        // 删除 3 号节点
+        HeroNode target = binaryTree.delete(3);
+        String msg = (target == null ? "删除失败，未找到" : "删除成功：" + target.toString());
+        System.out.println(msg);
+        binaryTree.preOrder();
+    }
+
+
+    @Test
+    public void delete5() {
+        // 创建节点与构建二叉树
+        BinaryTree binaryTree = buildBinaryTree();
+        binaryTree.preOrder();
+
+        // 删除 5 号节点
+        HeroNode target = binaryTree.delete(5);
+        String msg = (target == null ? "删除失败，未找到" : "删除成功：" + target.toString());
+        System.out.println(msg);
+        binaryTree.preOrder();
+    }
+
+    /**
+     * 删除一个不存在的节点
+     */
+    @Test
+    public void deleteFail() {
+        // 创建节点与构建二叉树
+        BinaryTree binaryTree = buildBinaryTree();
+        binaryTree.preOrder();
+
+        // 删除 5 号节点
+        HeroNode target = binaryTree.delete(9);
+        String msg = (target == null ? "删除失败，未找到" : "删除成功：" + target.toString());
+        System.out.println(msg);
+        binaryTree.preOrder();
+    }
+
+    /**
+     * 删除 root 节点
+     */
+    @Test
+    public void deleteRoot() {
+        // 创建节点与构建二叉树
+        BinaryTree binaryTree = buildBinaryTree();
+        binaryTree.preOrder();
+
+        // 删除 1 号节点
+        HeroNode target = binaryTree.delete(1);
+        String msg = (target == null ? "删除失败，未找到" : "删除成功：" + target.toString());
+        System.out.println(msg);
+        binaryTree.preOrder();
     }
 }
