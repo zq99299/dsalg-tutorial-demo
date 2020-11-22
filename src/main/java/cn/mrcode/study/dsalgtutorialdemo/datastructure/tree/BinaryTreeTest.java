@@ -163,33 +163,71 @@ public class BinaryTreeTest {
          * @param id
          * @return
          */
+//        public HeroNode delete(int id) {
+//            // 判断左子节点是否是要删除的节点
+//            HeroNode target = null;
+//            if (this.left != null) {
+//                if (this.left.id == id) {
+//                    target = this.left;
+//                    this.left = null;
+//                } else {
+//                    // 使用子节点的删除方法,进行左递归删除
+//                    target = this.left.delete(id);
+//                }
+//            }
+//
+//            // 在左找到目标节点，并且删除了，则返回被删除的节点
+//            if (target != null) {
+//                return target;
+//            }
+//
+//            if (this.right != null) {
+//                if (this.right.id == id) {
+//                    target = this.right;
+//                    this.right = null;
+//                } else {
+//                    target = this.right.delete(id);
+//                }
+//            }
+//            return target;
+//        }
+
+        /**
+         * 删除节点，老师的思路写法，先看左右，看完再递归
+         * @param id
+         * @return 如果删除成功，则返回删除的节点
+         */
         public HeroNode delete(int id) {
             // 判断左子节点是否是要删除的节点
             HeroNode target = null;
-            if (this.left != null) {
-                if (this.left.id == id) {
-                    target = this.left;
-                    this.left = null;
-                } else {
-                    // 使用子节点的删除方法,进行左递归删除
-                    target = this.left.delete(id);
-                }
-            }
-
-            // 在左找到目标节点，并且删除了，则返回被删除的节点
-            if (target != null) {
+            if (this.left != null && this.left.id == id) {
+                target = this.left;
+                this.left = null;
                 return target;
             }
 
-            if (this.right != null) {
-                if (this.right.id == id) {
-                    target = this.right;
-                    this.right = null;
-                } else {
-                    target = this.right.delete(id);
+            if (this.right != null && this.right.id == id) {
+                target = this.right;
+                this.right = null;
+                return target;
+            }
+
+            // 尝试左递归
+            if (this.left != null) {
+                target = this.left.delete(id);
+                if (target != null) {
+                    return target;
                 }
             }
-            return target;
+
+            // 尝试右递归
+            if (this.right != null) {
+                target = this.right.delete(id);
+                if (target != null) {
+                    return target;
+                }
+            }
+            return null;
         }
     }
 
