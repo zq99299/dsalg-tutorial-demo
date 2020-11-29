@@ -194,6 +194,7 @@ public class BinaryTreeTest {
 
         /**
          * 删除节点，老师的思路写法，先看左右，看完再递归
+         *
          * @param id
          * @return 如果删除成功，则返回删除的节点
          */
@@ -209,6 +210,86 @@ public class BinaryTreeTest {
             if (this.right != null && this.right.id == id) {
                 target = this.right;
                 this.right = null;
+                return target;
+            }
+
+            // 尝试左递归
+            if (this.left != null) {
+                target = this.left.delete(id);
+                if (target != null) {
+                    return target;
+                }
+            }
+
+            // 尝试右递归
+            if (this.right != null) {
+                target = this.right.delete(id);
+                if (target != null) {
+                    return target;
+                }
+            }
+            return null;
+        }
+
+        /**
+         * 删除节点，考虑子节点
+         * 1. 如果该非叶子节点 A 只有一个 **子节点 B**，则子 **节点 B 替代节点 A**
+         * 2. 如果该非叶子节点 A 有 **左子节点 B** 和 **右子节点 C**，则让 **左子节点 B 替代节点 A**
+         *
+         * @param id
+         * @return
+         */
+        public HeroNode deleteV2(int id) {
+            // 先判断左是否有要删除的节点
+            HeroNode target = null;
+            // 如果是要删除的节点
+            if (this.left != null && this.left.id == id) {
+                target = this.left;
+                // 如果当前删除的节点就是叶子节点，则直接删除
+                if (left.left == null && left.right == null) {
+                    this.left = null;
+                    return target;
+                }
+                // 如果有两个子节点,则让左子节点替代该节点
+                if (left.left != null && left.right != null) {
+                    left = left.left;
+                    return target;
+                }
+                // 如果只有一个子节点，则子节点替代该节点
+                if (left.left != null) {
+                    left = left.left;
+                    return target;
+                }
+
+                if (left.right != null) {
+                    left = left.right;
+                    return target;
+                }
+                return target;
+            }
+
+            if (this.right != null && this.right.id == id) {
+                target = this.right;
+                // 如果当前删除的节点就是叶子节点，则直接删除
+                if (right.left == null && right.right == null) {
+                    this.right = null;
+                    return target;
+                }
+                // 如果有两个子节点,则让左子节点替代该节点
+                if (right.left != null && right.right != null) {
+                    right = right.left;
+                    return target;
+                }
+                // 如果只有一个子节点，则子节点替代该节点
+                if (right.left != null) {
+                    right = right.left;
+                    return target;
+                }
+
+                if (right.right != null) {
+                    right = right.right;
+                    return target;
+                }
                 return target;
             }
 
@@ -302,7 +383,7 @@ public class BinaryTreeTest {
         }
 
         /**
-         * 删除节点
+         * 删除节点，不考虑子节点
          *
          * @param id
          * @return
@@ -313,7 +394,7 @@ public class BinaryTreeTest {
                 return null;
             }
             HeroNode target = null;
-            // 树只有 root 节点，则直接置空
+            // 如果是 root 节点，则直接清空
             if (root.id == id) {
                 target = root;
                 root = null;
@@ -321,6 +402,48 @@ public class BinaryTreeTest {
                 target = this.root.delete(id);
             }
 
+            return target;
+        }
+
+        /**
+         * 删除节点，考虑子节点
+         * 1. 如果该非叶子节点 A 只有一个 **子节点 B**，则子 **节点 B 替代节点 A**
+         * 2. 如果该非叶子节点 A 有 **左子节点 B** 和 **右子节点 C**，则让 **左子节点 B 替代节点 A**
+         *
+         * @param id
+         * @return
+         */
+        public HeroNode deleteV2(int id) {
+            if (root == null) {
+                System.out.println("树为空");
+            }
+            HeroNode target = null;
+            // 如果是 root 节点，则按照上述的规则进行提升节点
+            if (root.id == id) {
+                target = root;
+                // 如果当前删除的节点就是叶子节点，则直接删除
+                if (root.left == null && root.right == null) {
+                    root = null;
+                    return target;
+                }
+                // 如果有两个子节点,则让左子节点替代该节点
+                if (root.left != null && root.right != null) {
+                    root = root.left;
+                    return target;
+                }
+                // 如果只有一个子节点，则子节点替代该节点
+                if (root.left != null) {
+                    root = root.left;
+                    return target;
+                }
+
+                if (root.right != null) {
+                    root = root.right;
+                    return target;
+                }
+            } else {
+                target = this.root.deleteV2(id);
+            }
             return target;
         }
     }
@@ -434,6 +557,20 @@ public class BinaryTreeTest {
         return binaryTree;
     }
 
+    /**
+     * 不考虑子节点的删除
+     */
+    @Test
+    public void delete() {
+        System.out.println("\n删除 3 号节点");
+        delete3();
+        System.out.println("\n删除 5 号节点");
+        delete5();
+        System.out.println("\n删除一个不存在的节点");
+        deleteFail();
+        System.out.println("\n删除 root 节点");
+        deleteRoot();
+    }
     @Test
     public void delete3() {
         // 创建节点与构建二叉树
@@ -488,6 +625,77 @@ public class BinaryTreeTest {
 
         // 删除 1 号节点
         HeroNode target = binaryTree.delete(1);
+        String msg = (target == null ? "删除失败，未找到" : "删除成功：" + target.toString());
+        System.out.println(msg);
+        binaryTree.preOrder();
+    }
+
+    @Test
+    public void deleteV2() {
+        System.out.println("\n删除 3 号节点");
+        delete3V2();
+        System.out.println("\n删除 5 号节点");
+        delete5V2();
+        System.out.println("\n删除一个不存在的节点");
+        deleteFailV2();
+        System.out.println("\n删除 root 节点");
+        deleteRootV2();
+    }
+
+    @Test
+    public void delete3V2() {
+        // 创建节点与构建二叉树
+        BinaryTree binaryTree = buildBinaryTree();
+        binaryTree.preOrder();
+
+        // 删除 3 号节点
+        HeroNode target = binaryTree.deleteV2(3);
+        String msg = (target == null ? "删除失败，未找到" : "删除成功：" + target.toString());
+        System.out.println(msg);
+        binaryTree.preOrder();
+    }
+
+
+    @Test
+    public void delete5V2() {
+        // 创建节点与构建二叉树
+        BinaryTree binaryTree = buildBinaryTree();
+        binaryTree.preOrder();
+
+        // 删除 5 号节点
+        HeroNode target = binaryTree.deleteV2(5);
+        String msg = (target == null ? "删除失败，未找到" : "删除成功：" + target.toString());
+        System.out.println(msg);
+        binaryTree.preOrder();
+    }
+
+    /**
+     * 删除一个不存在的节点
+     */
+    @Test
+    public void deleteFailV2() {
+        // 创建节点与构建二叉树
+        BinaryTree binaryTree = buildBinaryTree();
+        binaryTree.preOrder();
+
+        // 删除 5 号节点
+        HeroNode target = binaryTree.deleteV2(9);
+        String msg = (target == null ? "删除失败，未找到" : "删除成功：" + target.toString());
+        System.out.println(msg);
+        binaryTree.preOrder();
+    }
+
+    /**
+     * 删除 root 节点
+     */
+    @Test
+    public void deleteRootV2() {
+        // 创建节点与构建二叉树
+        BinaryTree binaryTree = buildBinaryTree();
+        binaryTree.preOrder();
+
+        // 删除 1 号节点
+        HeroNode target = binaryTree.deleteV2(1);
         String msg = (target == null ? "删除失败，未找到" : "删除成功：" + target.toString());
         System.out.println(msg);
         binaryTree.preOrder();
