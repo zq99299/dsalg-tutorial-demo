@@ -70,7 +70,7 @@ class ArrBinaryTree {
         }
         // 3. 如果右子节点不为空，则递归继续前序遍历
         int right = 2 * index + 2;
-        if (left < arr.length) {
+        if (right < arr.length) {
             preOrder(right);
         }
     }
@@ -91,7 +91,7 @@ class ArrBinaryTree {
         }
         System.out.println(arr[index]);
         int right = 2 * index + 2;
-        if (left < arr.length) {
+        if (right < arr.length) {
             infixOrder(right);
         }
     }
@@ -111,7 +111,7 @@ class ArrBinaryTree {
             postOrder(left);
         }
         int right = 2 * index + 2;
-        if (left < arr.length) {
+        if (right < arr.length) {
             postOrder(right);
         }
         System.out.println(arr[index]);
