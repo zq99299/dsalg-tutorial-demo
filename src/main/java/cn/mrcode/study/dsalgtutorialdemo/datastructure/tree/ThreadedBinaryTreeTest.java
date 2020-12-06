@@ -106,6 +106,76 @@ public class ThreadedBinaryTreeTest {
                 node = node.right;
             }
         }
+
+        public void preOrderThreadeNodes() {
+            preOrderThreadeNodes(root);
+        }
+
+        /**
+         * 前序线索化二叉树
+         */
+        public void preOrderThreadeNodes(HeroNode node) {
+            // 前序：自己、左（递归）、右（递归）
+            // 数列： 1,3,6,8,10,14
+            // 前序： 1,3,8,10,6,14
+
+            if (node == null) {
+                return;
+            }
+
+            System.out.println(node);
+            // 当自己的 left 节点为空，则可以线索化
+            if (node.left == null) {
+                node.left = pre;
+                node.leftType = 1;
+            }
+            // 当前一个节点 right 为空，则可以把自己设置为前一个节点的后继节点
+            if (pre != null && pre.right == null) {
+                pre.right = node;
+                pre.rightType = 1;
+            }
+
+            // 因为是前序，因此 pre 保存的是自己
+            // 到下一个节点的时候，下一个节点如果是线索化节点 ，才能将自己作为它的前驱节点
+            pre = node;
+
+            // 那么继续往左，查找符合可以线索化的节点
+            // 因为先处理的自己，如果 left == null，就已经线索化了
+            // 再往左的时候，就不能直接进入了
+            // 需要判定，如果不是线索化节点，再进入
+            // 比如：当前节点 8，前驱 left 被设置为了 3
+            // 这里节点 8 的 left 就为 1 了，就不能继续递归，否则又回到了节点 3 上
+            // 导致死循环了。
+            if (node.leftType == 0) {
+                preOrderThreadeNodes(node.left);
+            }
+            if (node.rightType == 0) {
+                preOrderThreadeNodes(node.right);
+            }
+        }
+
+        /**
+         * 前序线索化二叉树遍历
+         */
+        public void preOrderThreadeList() {
+            HeroNode node = root;
+            // 最后一个节点无后继节点，就会退出了
+            // 前序：自己、左（递归）、右（递归）
+            while (node != null) {
+                // 先打印自己
+                System.out.println(node);
+
+                while (node.leftType == 0) {
+                    node = node.left;
+                    System.out.println(node);
+                }
+                while (node.rightType == 1) {
+                    node = node.right;
+                    System.out.println(node);
+                }
+                node = node.right;
+            }
+        }
     }
 
     @Test
@@ -136,10 +206,20 @@ public class ThreadedBinaryTreeTest {
     }
 
     /**
-     * 线索化遍历测试
+     * 中序：线索化遍历测试
      */
     @Test
     public void threadedListTest() {
+        ThreadedBinaryTree tree = buildTree();
+        tree.threadeNodes();
+        tree.threadedList(); // 8,3,10,1,14,6
+    }
+
+    /**
+     * 前序线索化
+     */
+    @Test
+    public void preOrderThreadedNodesTest() {
         // 1,3,6,8,10,14
         HeroNode n1 = new HeroNode(1, "宋江");
         HeroNode n3 = new HeroNode(3, "无用");
@@ -156,7 +236,49 @@ public class ThreadedBinaryTreeTest {
         ThreadedBinaryTree tree = new ThreadedBinaryTree();
         tree.root = n1;
 
-        tree.threadeNodes();
-        tree.threadedList(); // 8,3,10,1,14,6
+        tree.preOrderThreadeNodes();
+
+        // 验证： 前序顺序： 1,3,8,10,6,14
+        HeroNode left = n10.left;
+        HeroNode right = n10.right;
+        System.out.println("10 号节点的前驱节点：" + left.id); // 8
+        System.out.println("10 号节点的后继节点：" + right.id); // 6
+
+        left = n6.left;
+        right = n6.right;
+        System.out.println("6 号节点的前驱节点：" + left.id); // 14, 普通节点
+        System.out.println("6 号节点的后继节点：" + right.id); // 14,线索化节点
+    }
+
+    @Test
+    public void preOrderThreadeListTest() {
+        ThreadedBinaryTree tree = buildTree();
+        tree.preOrderThreadeNodes();
+        System.out.println("前序线索化遍历");
+        tree.preOrderThreadeList(); // 1,3,8,10,6,14
+    }
+
+    /**
+     * 构建一颗数
+     *
+     * @return
+     */
+    private ThreadedBinaryTree buildTree() {
+        // 1,3,6,8,10,14
+        HeroNode n1 = new HeroNode(1, "宋江");
+        HeroNode n3 = new HeroNode(3, "无用");
+        HeroNode n6 = new HeroNode(6, "卢俊");
+        HeroNode n8 = new HeroNode(8, "林冲2");
+        HeroNode n10 = new HeroNode(10, "林冲3");
+        HeroNode n14 = new HeroNode(14, "林冲4");
+        n1.left = n3;
+        n1.right = n6;
+        n3.left = n8;
+        n3.right = n10;
+        n6.left = n14;
+
+        ThreadedBinaryTree tree = new ThreadedBinaryTree();
+        tree.root = n1;
+        return tree;
     }
 }
