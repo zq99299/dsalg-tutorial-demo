@@ -76,10 +76,41 @@ public class ThreadedBinaryTreeTest {
             pre = node;
             threadeNodes(node.right);
         }
+
+        /**
+         * 遍历线索化二叉树
+         */
+        public void threadedList() {
+            // 前面线索化使用的是中序，这里也同样要用中序的方式
+            // 但是不适合使用之前那种递归了
+            HeroNode node = root;
+            while (node != null) {
+                // 中序：左、自己、右
+                // 数列： 1,3,6,8,10,14
+                // 中序： 8,3,10,1,14,6
+                // 那么先找到左边的第一个线索化节点，也就是 8. 对照图示理解，比较容易
+                while (node.leftType == 0) {
+                    node = node.left;
+                }
+                // 找到这个线索化节点之后，打印它
+                System.out.println(node);
+
+                // 如果该节点右子节点也是线索化节点，则打印它
+                while (node.rightType == 1) {
+                    node = node.right;
+                    System.out.println(node);
+                }
+
+                // 到达这里，就说明遇到的不是一个 线索化节点了
+                // 而且，按中序的顺序来看：这里应该处理右侧了
+                node = node.right;
+            }
+        }
     }
 
     @Test
     public void threadeNodesTest() {
+        // 1,3,6,8,10,14
         HeroNode n1 = new HeroNode(1, "宋江");
         HeroNode n3 = new HeroNode(3, "无用");
         HeroNode n6 = new HeroNode(6, "卢俊");
@@ -90,7 +121,7 @@ public class ThreadedBinaryTreeTest {
         n1.right = n6;
         n3.left = n8;
         n3.right = n10;
-        n6.right = n14;
+        n6.left = n14;
 
         ThreadedBinaryTree tree = new ThreadedBinaryTree();
         tree.root = n1;
@@ -102,5 +133,30 @@ public class ThreadedBinaryTreeTest {
         HeroNode right = n10.right;
         System.out.println("10 号节点的前驱节点：" + left.id);
         System.out.println("10 号节点的后继节点：" + right.id);
+    }
+
+    /**
+     * 线索化遍历测试
+     */
+    @Test
+    public void threadedListTest() {
+        // 1,3,6,8,10,14
+        HeroNode n1 = new HeroNode(1, "宋江");
+        HeroNode n3 = new HeroNode(3, "无用");
+        HeroNode n6 = new HeroNode(6, "卢俊");
+        HeroNode n8 = new HeroNode(8, "林冲2");
+        HeroNode n10 = new HeroNode(10, "林冲3");
+        HeroNode n14 = new HeroNode(14, "林冲4");
+        n1.left = n3;
+        n1.right = n6;
+        n3.left = n8;
+        n3.right = n10;
+        n6.left = n14;
+
+        ThreadedBinaryTree tree = new ThreadedBinaryTree();
+        tree.root = n1;
+
+        tree.threadeNodes();
+        tree.threadedList(); // 8,3,10,1,14,6
     }
 }
