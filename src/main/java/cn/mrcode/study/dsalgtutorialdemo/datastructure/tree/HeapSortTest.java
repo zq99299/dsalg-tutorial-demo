@@ -2,6 +2,8 @@ package cn.mrcode.study.dsalgtutorialdemo.datastructure.tree;
 
 import org.junit.Test;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 
 /**
@@ -97,7 +99,7 @@ public class HeapSortTest {
             // 如果
             adjustHeap(arr, 0, j);
         }
-        System.out.println(Arrays.toString(arr));
+//        System.out.println(Arrays.toString(arr));
     }
 
     /**
@@ -133,5 +135,28 @@ public class HeapSortTest {
             }
         }
         arr[i] = temp;
+    }
+
+    /**
+     * 大量数据排序时间测试
+     */
+    @Test
+    public void bulkDataSort() {
+        int max = 800_000;
+//        int max = 8;
+        int[] arr = new int[max];
+        for (int i = 0; i < max; i++) {
+            arr[i] = (int) (Math.random() * max);
+        }
+        if (arr.length < 10) {
+            System.out.println("原始数组：" + Arrays.toString(arr));
+        }
+        Instant startTime = Instant.now();
+        sort(arr);
+        if (arr.length < 10) {
+            System.out.println("排序后：" + Arrays.toString(arr));
+        }
+        Instant endTime = Instant.now();
+        System.out.println("共耗时：" + Duration.between(startTime, endTime).toMillis() + " 毫秒");
     }
 }
