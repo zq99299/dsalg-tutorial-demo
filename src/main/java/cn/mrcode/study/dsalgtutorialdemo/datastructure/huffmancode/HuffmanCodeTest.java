@@ -220,6 +220,90 @@ public class HuffmanCodeTest {
         }
         return contentHuffmanCodeBytes;
     }
+
+    /**
+     * byte 转成二进制字符串测试
+     */
+    @Test
+    public void byteToBitStringTest() {
+        byte num = -1;
+        int temp = num;
+        // 注意：这里返回的是补码，并非原码：而正数的补码就是原码
+        String s = Integer.toBinaryString(temp);
+        // 11111111111111111111111111111111
+        System.out.println(s);
+        // 我们只需要 8 位的，所以需要进行截取
+        s = s.substring(s.length() - 8);
+        // 11111111
+        System.out.println(s);
+
+        // 但是：如果换成正数
+        num = 1;
+        temp = num;
+        s = Integer.toBinaryString(temp);
+        // 1
+        System.out.println(s);
+        // 由于正数，返回的是整数的本身，需要进行高位补位
+        //  s = s.substring(s.length() - 8);
+
+        // 高位补位
+        // 256 的二进制是 0000 0001 0000 0000
+        // 1   的二进制是 0000 0000 0000 0001
+        // 进行与计算后：  0000 0001 0000 0001
+        // 再截取最后 8 位，         0000 0001
+        temp |= 256;
+        s = Integer.toBinaryString(temp);
+        s = s.substring(s.length() - 8);
+        // 0000 0001
+        System.out.println(s);
+    }
+
+    /**
+     * 将上面的推导过程封装成函数
+     */
+    @Test
+    public void byteToBitStringTest2() {
+        byte num = -1;
+        String s = byteToBitString(true, num);
+        System.out.println(num + " 的二进制显示：" + s);
+
+        num = 1;
+        s = byteToBitString(true, num);
+        System.out.println(num + " 的二进制显示：" + s);
+    }
+
+    /**
+     * <pre>
+     *     是否需要补位的场景有：
+     *     1. 上面推导过程中的，正数需要补位。而负数不需要补位；
+     *        对于负数补位来说，由于是低 8 位， 256 是第 9 位，运行与之后，截取出来的是不变的
+     *        那么这里就统一都补位。而末尾的在外部需要判定是否满 8 个字符，没有满的话，则不需要补位
+     *     2. 但是在我们将赫夫曼编码字符串转成 bytes 的时候，末尾的 byte 有可能不是 8 位，那么这个就不需要进行补位，补位就无法还原了
+     * </pre>
+     *
+     * @param flag 是否需要补位
+     * @param b    将此 byte 转成二进制字符串返回
+     * @return
+     */
+    public String byteToBitString(boolean flag, byte b) {
+        int temp = b;
+        // 需要补位
+        if (flag) {
+            // 高位补位
+            // 256 的二进制是 0000 0001 0000 0000
+            // 1   的二进制是 0000 0000 0000 0001
+            // 进行与计算后：  0000 0001 0000 0001
+            // 再截取最后 8 位，         0000 0001
+            temp |= 256;
+            // 对于负数补位来说，由于是低 8 位， 256 是第 9 位，运行与之后，截取出来的是不变的
+        }
+        String str = Integer.toBinaryString(temp);
+        if (flag) {
+            // 只截取低 8 位
+            return str.substring(str.length() - 8);
+        }
+        return str;
+    }
 }
 
 class Node implements Comparable<Node> {
