@@ -90,6 +90,71 @@ public class HuffmanCodeTest {
         }
         return nodes.get(0);
     }
+
+    /**
+     * 基于赫夫曼树，构建赫夫曼编码表
+     */
+    @Test
+    public void buildHuffmanCodesTest() {
+        String content = "i like like like java do you like a java";
+        byte[] contentBytes = content.getBytes(); // 会使用所在系统的默认字符集构建 bytes，一般是 UTF-8
+
+        // 1. 构建 nodes 列表
+        List<Node> nodes = buildNodes(contentBytes);
+
+        // 2. 对列表进行赫夫曼树的构建
+        Node node = createHuffmanTree(nodes);
+
+        // 3. 基于赫夫曼树生成 赫夫曼编码表
+        Map<Byte, String> codes = buildHuffmanCodes(node);
+        System.out.println(codes);
+    }
+
+    /**
+     * 基于赫夫曼树构建赫夫曼编码表
+     *
+     * @param node
+     * @return
+     */
+    private Map<Byte, String> buildHuffmanCodes(Node node) {
+        if (node == null) {
+            System.out.println("赫夫曼树为空");
+            return null;
+        }
+        Map<Byte, String> codes = new HashMap<>();
+        StringBuilder sb = new StringBuilder();
+        // 根节点没有指向性。所以传递空白的路径代码
+        buildHuffmanCodes(node, "", codes, sb);
+        return codes;
+    }
+
+    /**
+     * 递归，查找每个叶子节点，得到每个叶子节点的权路径
+     *
+     * @param node
+     * @param code  左节点，则该值为 0，右节点，则该值为 1
+     * @param codes 存放赫夫曼编码的容器
+     * @param sb    存放节点 权路径 的容器
+     */
+    private void buildHuffmanCodes(Node node, String code, Map<Byte, String> codes, StringBuilder sb) {
+        if (node == null) {
+            return;
+        }
+        // 注意这里：为什么要用一个新的 sb 容器？
+        // 如果一直传递第一个 sb 容器，那么该容器中的字符会越来越长
+        // 在递归状态下，每次新增一个 sb 容器，当它回溯的时候，它的下一层处理过的路径，就和该容器无关。那么他还可以进行右节点的拼接。
+        // 这样才是正确的使用方式
+        StringBuilder sbTemp = new StringBuilder(sb);
+        sbTemp.append(code);
+        // 如果该节点没有数据，则有下一个叶子节点
+        if (node.value == null) {
+            buildHuffmanCodes(node.left, "0", codes, sbTemp);
+            buildHuffmanCodes(node.right, "1", codes, sbTemp);
+        } else {
+            // 如果是叶子节点，则将
+            codes.put(node.value, sbTemp.toString());
+        }
+    }
 }
 
 class Node implements Comparable<Node> {
