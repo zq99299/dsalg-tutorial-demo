@@ -161,8 +161,8 @@ public class HuffmanCodeTest {
      */
     @Test
     public void zipTest() {
-//        String content = "i like like like java do you like a java";
-        String content = "我是一个中国人，我热爱中国";
+        String content = "i like like like java do you like a java";
+//        String content = "我是一个中国人，我热爱中国";
         byte[] contentBytes = content.getBytes(); // 会使用所在系统的默认字符集构建 bytes，一般是 UTF-8
 
         // 1. 构建 nodes 列表
@@ -303,6 +303,118 @@ public class HuffmanCodeTest {
             return str.substring(str.length() - 8);
         }
         return str;
+    }
+
+    /**
+     * 将赫夫曼二进制数组转成 赫夫曼编码字符串
+     */
+    @Test
+    public void unzipBytesToHuffmanCodeStrTest() {
+        byte[] huffmanBytes = {-88, -65, -56, -65, -56, -65, -55, 77, -57, 6, -24, -14, -117, -4, -60, -90, 28};
+        String contentHuffmanCodeStr = unzipBytesToHuffmanCodeStr(huffmanBytes);
+        System.out.println(contentHuffmanCodeStr);
+
+        // 为了方便验证，把转成赫夫曼数组之前的编码字符串拿过来进行对比
+        String oldContentHuffmanCodeStr = "1010100010111111110010001011111111001000101111111100100101001101110001110000011011101000111100101000101111111100110001001010011011100";
+        System.out.println(oldContentHuffmanCodeStr.equals(contentHuffmanCodeStr));
+    }
+
+    /**
+     * 将压缩之后的数据，bytes 转成赫夫曼编码字符串
+     *
+     * @param huffmanBytes
+     * @return 返回的是赫夫曼编码字符串，也就是 101010001011....
+     */
+    private String unzipBytesToHuffmanCodeStr(byte[] huffmanBytes) {
+        StringBuilder contentHuffmanCodeStr = new StringBuilder();
+        for (int i = 0; i < huffmanBytes.length; i++) {
+            byte huffmanByte = huffmanBytes[i];
+
+            // 是最后一个 byte，则不需要补位
+            boolean flag = (i == huffmanBytes.length - 1); // 如果是最后一个，不需要补位
+            contentHuffmanCodeStr.append(byteToBitString(!flag, huffmanByte));
+        }
+        return contentHuffmanCodeStr.toString();
+    }
+
+    @Test
+    public void unzipTest() {
+        // 由于需要使用构建时的码表，这里先构建一次，把码表拿到
+        // 至于这个解压的码表 是如何保留的，这个视频中暂时没有说明
+        String content = "i like like like java do you like a java";
+//        String content = "我是一个中国人，我热爱中国";
+        byte[] contentBytes = content.getBytes(); // 会使用所在系统的默认字符集构建 bytes，一般是 UTF-8
+
+        // 1. 构建 nodes 列表
+        List<Node> nodes = buildNodes(contentBytes);
+
+        // 2. 对列表进行赫夫曼树的构建
+        Node node = createHuffmanTree(nodes);
+
+        // 3. 基于赫夫曼树生成 赫夫曼编码表
+        Map<Byte, String> huffmanCodes = buildHuffmanCodes(node);
+
+        // 4. 基于赫夫曼编码表，压缩内容
+        byte[] huffmanCodeBytes = zip(contentBytes, huffmanCodes);
+
+        // 5. 将压缩的内容进行解压，得到原始字符的 byte 数组
+        byte[] unzipBytes = unzip(huffmanCodeBytes, huffmanCodes);
+        String unzipStr = new String(unzipBytes);
+        System.out.println("解压之后的字节数组：" + Arrays.toString(unzipBytes));
+        System.out.println("解压之后的字节数组长度：" + unzipBytes.length);  // 如果正常的话，则为 40
+        System.out.println("解压之后的原始字符串：" + unzipStr);
+        System.out.println("压缩前和解压之后的字符串是否一致：" + content.equals(unzipStr));
+    }
+
+    /**
+     * 解压
+     *
+     * @param huffmanCodeBytes 压缩之后的直接数组
+     * @param huffmanCodeMap   介于构建时的码表 进行解压
+     * @return 返回解压之后的字节数组
+     */
+    private byte[] unzip(byte[] huffmanCodeBytes, Map<Byte, String> huffmanCodeMap) {
+        // 1. 获得码表的转换，反查的时候，要通过权值路径，查找字符串
+        Map<String, Byte> codeMap = new HashMap<>();
+        huffmanCodeMap.forEach((key, value) -> {
+            codeMap.put(value, key);
+        });
+        // 2. 获得赫夫曼编码字符串
+        String huffmanCodeStr = unzipBytesToHuffmanCodeStr(huffmanCodeBytes);
+        // 3. 挨个解析，然后从码表中获取
+
+        List<Byte> results = new ArrayList<>();
+        // 注意这个循环没有步长
+        // 由内部的 while 循环找到一个字符串之后，将 i 重置到下一个开始的字符处
+        for (int i = 0; i < huffmanCodeStr.length(); ) {
+            int count = 1;
+            boolean flag = true;
+            Byte aByte = null;
+            while (flag) {
+                // 1010100010111111110
+                // i = 0 时：截取的是 1
+                // i = 1 时：截取的是 0
+                String key = huffmanCodeStr.substring(i, i + count);
+                aByte = codeMap.get(key);
+                if (aByte != null) {
+                    // 匹配到一个，则退出这次匹配
+                    flag = false;
+                } else {
+                    // 如果当次没有匹配到，则将 count+1，让下一次循环可以往后截取一个字符串
+                    // 假设第一次：截取了 1 ，没有匹配
+                    // 下一次，将截取到的字符串是 10，依次类推
+                    count++;
+                }
+            }
+            // 将 i 重置到下一个字符串开始的位置
+            i = i + count;
+            results.add(aByte);
+        }
+        byte[] bytes = new byte[results.size()];
+        for (int i = 0; i < results.size(); i++) {
+            bytes[i] = results.get(i);
+        }
+        return bytes;
     }
 }
 
