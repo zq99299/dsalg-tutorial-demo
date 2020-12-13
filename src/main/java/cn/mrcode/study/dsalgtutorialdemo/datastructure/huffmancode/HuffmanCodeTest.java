@@ -2,6 +2,10 @@ package cn.mrcode.study.dsalgtutorialdemo.datastructure.huffmancode;
 
 import org.junit.Test;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -191,10 +195,10 @@ public class HuffmanCodeTest {
             contentHuffmanCodeStr.append(huffmanCodes.get(contentByte));
         }
         // 1010100010111111110010001011111111001000101111111100100101001101110001110000011011101000111100101000101111111100110001001010011011100
-        System.out.println("原始字符串对应的赫夫曼编码字符串为：" + contentHuffmanCodeStr);
+//        System.out.println("原始字符串对应的赫夫曼编码字符串为：" + contentHuffmanCodeStr);
         // 这里长度应该是之前分析的 133
         int length = contentHuffmanCodeStr.length();
-        System.out.println("原始字符串对应的赫夫曼编码字符串长度为：" + length);
+//        System.out.println("原始字符串对应的赫夫曼编码字符串长度为：" + length);
 
         // 2. 将字符串每 8 个字符转成一个 byte
         // 计算转换后的 byte 数组长度
@@ -415,6 +419,107 @@ public class HuffmanCodeTest {
             bytes[i] = results.get(i);
         }
         return bytes;
+    }
+
+    /**
+     * 文件压缩
+     */
+    @Test
+    public void fileZipTest() throws IOException {
+        // 要压缩的文件
+        Path srcPath = Paths.get("/Users/mrcode/Desktop/1.png");
+        // 压缩之后的存放路径
+        Path distPath = Paths.get("/Users/mrcode/Desktop/1.png.zip");
+        fileZip(srcPath, distPath);
+
+        long srcSize = Files.size(srcPath);
+        long distSize = Files.size(distPath);
+        System.out.println("原始文件大小：" + srcSize / 1024);
+        System.out.println("压缩文件大小：" + distSize / 1024);
+        System.out.println("压缩比为 " + ((double) (srcSize - distSize) / srcSize) * 100 + "%");
+    }
+
+    /**
+     * 压缩文件
+     *
+     * @param srcPath  源文件
+     * @param distPath 压缩之后存放路径
+     */
+    private void fileZip(Path srcPath, Path distPath) {
+        try {
+            // 拿到源文件的字节数组
+            byte[] scrPytes = Files.readAllBytes(srcPath);
+
+            // 1. 构建 nodes 列表
+            List<Node> nodes = buildNodes(scrPytes);
+
+            // 2. 对列表进行赫夫曼树的构建
+            Node node = createHuffmanTree(nodes);
+
+            // 3. 基于赫夫曼树生成 赫夫曼编码表
+            Map<Byte, String> huffmanCodes = buildHuffmanCodes(node);
+
+            // 4. 基于赫夫曼编码表，压缩内容
+            byte[] huffmanCodeBytes = zip(scrPytes, huffmanCodes);
+
+            // 写入目标文件
+            try (
+                    OutputStream outputStream = Files.newOutputStream(distPath);
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+            ) {
+                // 这里使用对象流来方便的写入我们的数据
+                // 1. 先写入文件数据
+                objectOutputStream.writeObject(huffmanCodeBytes);
+                // 2. 再写入码表数据
+                objectOutputStream.writeObject(huffmanCodes);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void fileUnzipTest() throws IOException {
+        // 压缩文件地址
+        Path zipPath = Paths.get("/Users/mrcode/Desktop/1.png.zip");
+        // 解压之后的存放路径
+        Path distPath = Paths.get("/Users/mrcode/Desktop/1.unzip.png");
+        fileUnzip(zipPath, distPath);
+
+        // 原始文件
+        Path srcPath = Paths.get("/Users/mrcode/Desktop/1.png");
+        long srcSize = Files.size(srcPath);
+        long distSize = Files.size(distPath);
+        System.out.println("原始文件大小：" + srcSize / 1024);
+        System.out.println("解压文件大小：" + distSize / 1024);
+        System.out.println("是否相等：" + (srcSize == distSize));
+    }
+
+    /**
+     * 将压缩文件解压
+     *
+     * @param zipPath  压缩文件地址
+     * @param distPath 解压后存放地址
+     */
+    public void fileUnzip(Path zipPath, Path distPath) {
+        try (
+                InputStream in = Files.newInputStream(zipPath);
+                // 包装成对象流，读入之前写入的码表等数据
+                ObjectInputStream ois = new ObjectInputStream(in);
+        ) {
+            // 读取数据
+            byte[] huffmanCodeBytes = (byte[]) ois.readObject();
+            // 读取码表
+            Map<Byte, String> huffmanCodes = (Map<Byte, String>) ois.readObject();
+            byte[] bytes = unzip(huffmanCodeBytes, huffmanCodes);
+
+            // 将还原后的数据写出到文件
+            Files.write(distPath, bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }
 
