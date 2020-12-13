@@ -155,6 +155,71 @@ public class HuffmanCodeTest {
             codes.put(node.value, sbTemp.toString());
         }
     }
+
+    /**
+     * 基于赫夫曼编码表，将字符串压缩成 byte[]
+     */
+    @Test
+    public void zipTest() {
+//        String content = "i like like like java do you like a java";
+        String content = "我是一个中国人，我热爱中国";
+        byte[] contentBytes = content.getBytes(); // 会使用所在系统的默认字符集构建 bytes，一般是 UTF-8
+
+        // 1. 构建 nodes 列表
+        List<Node> nodes = buildNodes(contentBytes);
+
+        // 2. 对列表进行赫夫曼树的构建
+        Node node = createHuffmanTree(nodes);
+
+        // 3. 基于赫夫曼树生成 赫夫曼编码表
+        Map<Byte, String> huffmanCodes = buildHuffmanCodes(node);
+
+        // 4. 基于赫夫曼编码表，压缩内容
+        byte[] huffmanCodeBytes = zip(contentBytes, huffmanCodes);
+        System.out.println("将原始字符串压缩成赫夫曼编码的 byte 数组内容为：" + Arrays.toString(huffmanCodeBytes));
+        int huffmanCodeBytesLength = huffmanCodeBytes.length;
+        System.out.println("将原始字符串压缩成赫夫曼编码的 byte 数组内容长度为：" + huffmanCodeBytesLength);
+        int contentBytesLength = contentBytes.length;
+        System.out.println("原始字符串的字节数组为 " + contentBytesLength + " ，压缩之后变成了" + huffmanCodeBytesLength +
+                "，那么他的压缩比为 " + ((double) (contentBytesLength - huffmanCodeBytesLength) / contentBytesLength) * 100 + "%");
+    }
+
+    public byte[] zip(byte[] contentBytes, Map<Byte, String> huffmanCodes) {
+        // 1. 将原始字符串 byte 数组，转成以 护赫夫曼编码表 组成的字符串
+        StringBuilder contentHuffmanCodeStr = new StringBuilder();
+        for (byte contentByte : contentBytes) {
+            contentHuffmanCodeStr.append(huffmanCodes.get(contentByte));
+        }
+        // 1010100010111111110010001011111111001000101111111100100101001101110001110000011011101000111100101000101111111100110001001010011011100
+        System.out.println("原始字符串对应的赫夫曼编码字符串为：" + contentHuffmanCodeStr);
+        // 这里长度应该是之前分析的 133
+        int length = contentHuffmanCodeStr.length();
+        System.out.println("原始字符串对应的赫夫曼编码字符串长度为：" + length);
+
+        // 2. 将字符串每 8 个字符转成一个 byte
+        // 计算转换后的 byte 数组长度
+        // 下面判断分支对应的一行高效代码为：len = contentHuffmanCodeStr.length() + 7 / 8,原理是让它大于等于 8 ，无论是刚好整除还是有余数，都和下面的结果一致
+        int len = 0;
+        if (length % 8 == 0) {
+            len = length / 8;
+        } else {
+            len = length / 8 + 1;
+        }
+        byte[] contentHuffmanCodeBytes = new byte[len];
+        // 8 位一切分，所以循环步长为 8
+        int index = 0;
+        for (int i = 0; i < length; i = i + 8) {
+            String huffmanCode;
+            if (i + 8 < length) {
+                huffmanCode = contentHuffmanCodeStr.substring(i, i + 8);
+            } else {
+                huffmanCode = contentHuffmanCodeStr.substring(i);
+            }
+            // 10101000 -> 转成 byte，也就是将二进制字符串转成 byte
+            contentHuffmanCodeBytes[index++] = (byte) Integer.parseInt(huffmanCode, 2);
+        }
+        return contentHuffmanCodeBytes;
+    }
 }
 
 class Node implements Comparable<Node> {
