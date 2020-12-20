@@ -37,6 +37,23 @@ public class AvlTreeTest {
         System.out.println("左树高度：" + tree.root.leftHeight());  // 2
         System.out.println("右树高度：" + tree.root.rightHeight()); // 2
     }
+
+    /**
+     * 右旋转测试
+     */
+    @Test
+    public void rightRotatedTest() {
+        AvlTree tree = new AvlTree();
+        int[] arr = {10, 12, 8, 9, 7, 6};
+        for (int i = 0; i < arr.length; i++) {
+            tree.add(new Node(arr[i]));
+        }
+        tree.infixOrder();
+        System.out.println("树高度：" + tree.root.height());   // 3
+        System.out.println("左树高度：" + tree.root.leftHeight());  // 2
+        System.out.println("右树高度：" + tree.root.rightHeight()); // 2
+        System.out.println("当前根节点：" + tree.root); // 8
+    }
 }
 
 /**
@@ -310,6 +327,10 @@ class Node {
         if (rightHeight() - leftHeight() > 1) {
             leftRotate();
         }
+
+        if (leftHeight() - rightHeight() > 1) {
+            rightRotate();
+        }
     }
 
     /**
@@ -328,6 +349,24 @@ class Node {
         right = right.right;
         // 6. 把 当前节点 的 左节点 设置为 新节点
         left = newNode;
+    }
+
+    /**
+     * 以当前节点为根节点，进行右旋转
+     */
+    public void rightRotate() {
+        // 1. 创建一个新的节点 newNode，值等于当前 根节点 的值
+        Node newNode = new Node(value);
+        // 2. 把 新节点的 右子树 设置为当前节点的右子树
+        newNode.right = right;
+        // 3. 把 新节点的 左子树 设置为当前节点的 左子树的右子树
+        newNode.left = left.right;
+        // 4. 把 当前节点的值，替换为 左子树 节点的子
+        value = left.value;
+        // 5. 把 当前节点 的 左节点 设置为 左子树的左子树
+        left = left.left;
+        // 6. 把 当前节点 的 右节点 设置为 新节点
+        right = newNode;
     }
 
     /**
