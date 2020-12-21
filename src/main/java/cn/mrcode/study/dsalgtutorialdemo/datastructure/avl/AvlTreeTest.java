@@ -54,6 +54,41 @@ public class AvlTreeTest {
         System.out.println("右树高度：" + tree.root.rightHeight()); // 2
         System.out.println("当前根节点：" + tree.root); // 8
     }
+
+    /**
+     * 不能通过单旋转解决的场景；未添加双旋转的处理逻辑时，无法平衡
+     */
+    @Test
+    public void notLeftOrRightRotatedTest() {
+        AvlTree tree = new AvlTree();
+        int[] arr = {10, 11, 7, 6, 8, 9};
+        for (int i = 0; i < arr.length; i++) {
+            tree.add(new Node(arr[i]));
+        }
+        tree.infixOrder();
+        System.out.println("树高度：" + tree.root.height());   // 4
+        System.out.println("左树高度：" + tree.root.leftHeight());  // 1
+        System.out.println("右树高度：" + tree.root.rightHeight()); // 3
+        System.out.println("当前根节点：" + tree.root); // 7
+    }
+
+    /**
+     * 添加双旋转之后，之前测试不能旋转的数列进行测试
+     */
+    @Test
+    public void doubleRotatedTest() {
+        AvlTree tree = new AvlTree();
+//        int[] arr = {10, 11, 7, 6, 8, 9};
+        int[] arr = {2, 1, 6, 5, 7, 3};
+        for (int i = 0; i < arr.length; i++) {
+            tree.add(new Node(arr[i]));
+        }
+        tree.infixOrder();
+        System.out.println("树高度：" + tree.root.height());
+        System.out.println("左树高度：" + tree.root.leftHeight());
+        System.out.println("右树高度：" + tree.root.rightHeight());
+        System.out.println("当前根节点：" + tree.root);
+    }
 }
 
 /**
@@ -325,10 +360,18 @@ class Node {
         //      如果右子树高度 - 左子树高度 > 1，则左旋转
         //      也就是说：每次旋转的层只涉及到 4 层(对照笔记上的图示理解)
         if (rightHeight() - leftHeight() > 1) {
+            // 当 右节点的：左子树高度 大于 右子树的高度时，将 right 节点进行右旋转
+            if (right != null && right.leftHeight() > right.rightHeight()) {
+                right.rightRotate();
+            }
             leftRotate();
         }
 
         if (leftHeight() - rightHeight() > 1) {
+            // 当 左节点的：右子树高度 大于 左子树的高度时，将 left 节点进行左旋转
+            if (left != null && left.rightHeight() > left.leftHeight()) {
+                left.leftRotate();
+            }
             rightRotate();
         }
     }
