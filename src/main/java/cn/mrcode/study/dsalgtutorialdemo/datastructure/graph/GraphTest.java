@@ -3,6 +3,7 @@ package cn.mrcode.study.dsalgtutorialdemo.datastructure.graph;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -53,6 +54,9 @@ public class GraphTest {
         System.out.println("下标 1:" + grap.getValueByIndex(1));
     }
 
+    /**
+     * 图的深度优先遍历
+     */
     @Test
     public void dfsTest() {
         int n = 5;
@@ -71,6 +75,78 @@ public class GraphTest {
 
         System.out.println();
         grap.dfs();
+    }
+
+    /**
+     * 图的广度优先遍历
+     */
+    @Test
+    public void bfsTest() {
+        int n = 5;
+        String vertexValue[] = {"A", "B", "C", "D", "E"};
+        Grap grap = new Grap(n);
+        for (String value : vertexValue) {
+            grap.insertVertex(value);
+        }
+        // a,b  a,c  b,c  b,d  b,e
+        grap.insertEdge(0, 1, 1);
+        grap.insertEdge(0, 2, 1);
+        grap.insertEdge(1, 2, 1);
+        grap.insertEdge(1, 3, 1);
+        grap.insertEdge(1, 4, 1);
+        grap.showGraph();
+
+        System.out.println();
+        grap.bsf();
+    }
+
+
+    /**
+     * 构建数量较多的点的 图
+     *
+     * @return
+     */
+    private Grap buildGrap2() {
+        String vertexValue[] = {"1", "2", "3", "4", "5", "6", "7", "8"};
+        Grap grap = new Grap(vertexValue.length);
+        for (String value : vertexValue) {
+            grap.insertVertex(value);
+        }
+        // a,b  a,c  b,c  b,d  b,e
+        grap.insertEdge(0, 1, 1);
+        grap.insertEdge(0, 2, 1);
+        grap.insertEdge(1, 3, 1);
+        grap.insertEdge(1, 4, 1);
+        grap.insertEdge(3, 7, 1);
+        grap.insertEdge(4, 7, 1);
+        grap.insertEdge(2, 5, 1);
+        grap.insertEdge(2, 6, 1);
+        grap.insertEdge(5, 6, 1);
+        return grap;
+    }
+
+    /**
+     * 图的深度优先遍历：点数量较多的测试
+     */
+    @Test
+    public void dfsTest2() {
+        Grap grap = buildGrap2();
+        grap.showGraph();
+
+        System.out.println();
+        grap.dfs();
+    }
+
+    /**
+     * 图的广度优先遍历：点数量较多的测试
+     */
+    @Test
+    public void bfsTest2() {
+        Grap grap = buildGrap2();
+        grap.showGraph();
+
+        System.out.println();
+        grap.bsf();
     }
 
     class Grap {
@@ -242,6 +318,72 @@ public class GraphTest {
                 }
             }
             return -1;
+        }
+
+        /**
+         * 对整个节点进行 广度优先 遍历
+         */
+        public void bsf() {
+            for (int i = 0; i < vertexs.size(); i++) {
+                // 如果已经访问过，则跳过
+                if (isVisiteds[i]) {
+                    continue;
+                }
+                System.out.println("新的节点广度优先");  // 换行 1
+                // 没有访问过，则以此节点为基础进行深度遍历
+                bsf(i);
+            }
+        }
+
+        /**
+         * 对单个节点为初始节点，进行广度优先遍历
+         *
+         * @param i
+         */
+        private void bsf(int i) {
+            // 访问该节点，并标记已经访问
+            System.out.print(getValueByIndex(i) + " → ");
+            isVisiteds[i] = true;
+
+            // 将访问过的添加到队列中
+            LinkedList<Integer> queue = new LinkedList<>();
+            queue.addLast(i); // 添加到末尾
+
+            int u; // 队列头的节点
+            int w; // u 的下一个邻接节点
+            // 当队列不为空的时候，查找节点 u 的第一个邻接节点 w
+            while (!queue.isEmpty()) {
+                System.out.println(""); // 换行 2
+                u = queue.removeFirst();
+                w = getFirstNeighbor(u);
+                // w 存在的话
+//                while (w != -1) {
+//                    // 如果 w 已经被访问过
+//                    if (isVisiteds[w]) {
+//                        // 则：以 u 为初始节点，查找 w 的下一个邻接节点
+//                        w = getNextNeighbor(u, w);
+//                    }
+//                    // 如果 w 没有被访问过，则访问它，并标记已经访问
+//                    else {
+//                        System.out.print(getValueByIndex(w) + " → ");
+//                        isVisiteds[w] = true;
+//                        queue.addLast(w); // 访问过的一定要入队列
+//                    }
+//                }
+                // 上面这样写，容易阅读，但是会存在多一次循环的问题，改写成下面这样
+                while (w != -1) {
+                    // 如果没有被访问过，则访问，并标记为已经访问过
+                    if (!isVisiteds[w]) {
+                        System.out.print(getValueByIndex(w) + " → ");
+                        isVisiteds[w] = true;
+                        queue.addLast(w); // 访问过的一定要入队列
+                    }
+                    // 上面访问之后，就需要获取该节点的下一个节点
+                    // 否则，下一次还会判断一次 w，然后去获取下一个节点，只获取，但是没有进行访问相关操作
+                    // 相当于每个节点都会循环两次，这里减少到一次
+                    w = getNextNeighbor(u, w);
+                }
+            }
         }
     }
 }
