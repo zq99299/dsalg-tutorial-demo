@@ -221,6 +221,25 @@ public class KnapsackProblem {
     }
 
     /**
+     * 查看和给定商品列表顺序结果是否有变化：结论是没有变化，放入的商品都是同一个
+     */
+    @Test
+    public void tableAndProduct3() {
+        int[] val = {0, 1500, 3000, 2000, 1500};  // 商品价值
+        int[] w = {0, 1, 4, 3, 1}; // 商品对应重量
+        int m = 5; // 背包容量
+        knapsackProblem(val, w, m);
+    }
+
+    @Test
+    public void tableAndProduct4() {
+        int[] val = {0, 1500, 1500, 3000, 2000};  // 商品价值
+        int[] w = {0, 1, 1, 4, 3}; // 商品对应重量
+        int m = 5; // 背包容量
+        knapsackProblem(val, w, m);
+    }
+
+    /**
      * 打印填表信息
      *
      * @param table
