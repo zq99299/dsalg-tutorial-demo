@@ -67,7 +67,7 @@ public class GreedyAlgorithm {
 
         // 当所有需要覆盖的地区还有时，则可以继续选择
 
-        String maxKey = ""; // 当次覆盖地区最多的电台
+        String maxKey = null; // 当次覆盖地区最多的电台
         int maxKeyCoverNum = 0; // maxKey 覆盖的数量
         Set<String> temp = new HashSet<>();  // 临时变量，用于计算电台中的覆盖地区：在要未覆盖地区中  覆盖的数量
         while (!allAreas.isEmpty()) {
@@ -77,18 +77,21 @@ public class GreedyAlgorithm {
                 temp.addAll(areas);
                 temp.retainAll(allAreas);
                 // 如果：当前尝试选择的电台，覆盖数量比 maxKey 还大，则把它设置为 maxKey
-                if (temp.size() > maxKeyCoverNum) {
+                if (temp.size() > 0 && temp.size() > maxKeyCoverNum) {
                     maxKey = key;
                     maxKeyCoverNum = temp.size();
                 }
                 temp.clear();
+            }
+            if (maxKey == null) {
+                continue;
             }
             // 循环完成后，找到了本轮的 maxKey
             // 添加到已选择列表中，并且从 未覆盖列表 中删除已经覆盖过的地区
             selects.add(maxKey);
             allAreas.removeAll(broadcasts.get(maxKey));
             // 清空临时变量，方便下次查找
-            maxKey = "";
+            maxKey = null;
             maxKeyCoverNum = 0;
         }
         return selects;
