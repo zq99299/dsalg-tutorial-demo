@@ -78,6 +78,7 @@ public class HorseChessboard {
 
     /**
      * 从 5 ~ 7，7 ~ 0 ，这个策略大概需要 44 秒
+     *
      * @param current
      * @return
      */
@@ -138,6 +139,7 @@ public class HorseChessboard {
         chessboard[cx][cy] = step;
         // 3. 根据当前节点计算马儿可以走的点
         ArrayList<Point> points = next(new Point(cx, cy));
+        sort(points);
         //  不为空则可以一直尝试走
         while (!points.isEmpty()) {
             Point point = points.remove(0);
@@ -157,6 +159,28 @@ public class HorseChessboard {
         }
 //        System.out.println(step);
 //        show(chessboard);
+    }
+
+    /**
+     * 贪心算法优化：按每一个点的 next 可选择的点数量进行升序排列
+     *
+     * @param points
+     */
+    private void sort(ArrayList<Point> points) {
+        points.sort((o1, o2) -> {
+            ArrayList<Point> next1 = next(o1);
+            ArrayList<Point> next2 = next(o2);
+            // 你可以尝试修改下这里：按降序排列的话，这个等待时间就太多了
+            // 升序排列，我这里只需要 100 毫秒左右，而降序排列需要接近 1 分多钟甚至几分钟
+            if (next1.size() > next2.size()) {
+                return 1;
+            } else if (next1.size() == next2.size()) {
+                return 0;
+            } else {
+                return -1;
+            }
+
+        });
     }
 
     /**
